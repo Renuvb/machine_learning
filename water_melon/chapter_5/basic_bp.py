@@ -10,27 +10,90 @@ class BasicNN:
         # input n*(w+1) label 在最后一维
         self.nn_shape = nn_shape
         # 对参数进行初始化，默认全0初始化
-        self.w1 = np.zeros(shape=nn_shape[:2])
-        self.w2 = np.zeros(shape=nn_shape[1:])
+        self.w1 = np.random.rand(nn_shape[0], nn_shape[1]) - 0.5
+        self.b1 = np.random.rand(1,nn_shape[1]) - 0.5
+        self.w2 = np.random.rand(nn_shape[1], nn_shape[2]) - 0.5
+        self.b2 = np.random.rand(1,nn_shape[2]) - 0.5
         self.training_set = train_set
         self.test_set = test_set
+        self.eta = 0.01
+        print("nn_shape:",nn_shape)
+        print("train_set: %s, test_set: %s, w1 shape: %s, w2: %s" % (train_set.shape, test_set.shape, self.w1.shape, self.w2.shape))
 
-    def train(self):
-        pass
+    def train(self, max_round=100, detail_mode=False):
+        print("train_data", self.training_set.shape)
+        last_loss = 9e20
 
-    def forward(self, batch_data):
-        np_a1 = self.sigmoid(batch_data[:,:-1]*self.w1)
-        y = self.sigmoid(np_a1*self.w2)
+        def round(batch_data):
+            n = batch_data.shape[0]
+            np_a1 = self.sigmoid(
+                np.dot(batch_data[:, :-1], self.w1) + np.dot(np.ones((batch_data.shape[0], 1)), self.b1))
+            # print("np_a1",np_a1.shape)
+            y = self.sigmoid(np.dot(np_a1, self.w2) + np.dot(np.ones((batch_data.shape[0], 1)), self.b2))
+            # print("y",y.shape)
+            np_g2 = y * (1 - y) * (y - batch_data[:, -1:]) * (-1)
+            # print("np_g2",np_g2.shape)
+            delta_w2 = self.eta * (np_a1.T @ np_g2)  # h*1 = h*n * n*1
+            # print("delta_w2",delta_w2.shape)
+            delta_b2 = np.ones((1, n)) @ np_g2 * self.eta
+            g1 = np_g2 @ self.w2.T * np_a1 * (1 - np_a1)
+            delta_w1 = batch_data[:, :-1].T @ g1 * self.eta
+            # print("delta_w1", delta_w1.shape)
+            delta_b1 = np.ones((1, n)) @ g1 * self.eta
+            loss = np.sum((y - batch_data[:, -1:]) ** 2)
+            last_loss = loss
+            if detail_mode:
+                print("batch_data",batch_data)
+                print("w1",self.w1)
+                print("w2",self.w2)
+                print("b1",self.b1)
+                print("b2",self.b2)
+                print("a1",np_a1)
+                print("y",y)
+                print("g2",np_g2)
+                print("delta_w2",delta_w2)
+                print("delta_b2",delta_b2)
+                print("g1",g1)
+                print("delta_w1",delta_w1)
+                print("delta_b1",delta_b1)
 
-    def _round(self, batch_data):
+
+            self.w1 = self.w1 + delta_w1
+            self.w2 = self.w2 + delta_w2
+            self.b1 = self.b1 + delta_b1
+            self.b2 = self.b2 + delta_b2
 
 
-    def loss(self, data):
-        return
+        for i in range(max_round):
+            round(self.training_set)
+            print("round:%s, eta: %s, loss: %s" % (i, self.eta, self.loss(self.training_set)))
+
+        for i in range(max_round):
+            for j in range(self.training_set.shape[0]):
+                round(self.training_set[j:j+1,:])
+            print("round:%s, eta: %s, loss: %s" % (i, self.eta, self.loss(self.training_set)))
+
+        # if last_loss < loss:
+        #     self.eta *= 0.5
+        #     print("round %s, change eta" % i)
+
+    def loss(self, batch_data, print_detail=False):
+        np_a1 = self.sigmoid(
+            np.dot(batch_data[:, :-1], self.w1) + np.dot(np.ones((batch_data.shape[0], 1)), self.b1))
+        y = self.sigmoid(np.dot(np_a1, self.w2) + np.dot(np.ones((batch_data.shape[0], 1)), self.b2))
+        np_diff = batch_data[:, -1:] - y
+        loss = 0.5 * np.sum(np_diff ** 2)
+        if print_detail:
+            print("y:",y)
+            print("real_y:", batch_data[:,-1:])
+            print("diff:", np_diff)
+            print("w1, %s"%self.w1)
+            print("w2, %s"%self.w2)
+        return loss
+
 
     def sigmoid(self, data):
-        return 1/(1+math.exp(data))
-
+        return 1 / (1 + np.exp(0-data))
 
 def read_data_set():
     df_data = pd.read_csv("dataset/water_melon3.0.txt")
@@ -84,9 +147,16 @@ def one_hot(df_data):
         np_instances[i][size-1] = label_value_to_index[value]
     return np_instances
 
-if __name__ == '__main__':
-    nn = BasicNN((8,4,1), None, None)
-    print(nn.w2)
+
+def main():
+    # nd_data = np.random.rand(1, 3)
+    # nd_data = np.ones((1, 3))
+    # for i in range(nd_data.shape[0]):
+    #     s = np.sum(nd_data[i][:-1])
+    #     nd_data[i][-1] = s
+    # train_set = nd_data
+    # test_set = nd_data
+    # nn = BasicNN((train_set.shape[1] - 1, 2, 1), nd_data, nd_data)
 
     df_data = read_data_set()
     print(df_data.head(5))
@@ -112,7 +182,13 @@ if __name__ == '__main__':
     train_set = train_set.reshape((instance_num-test_num, dim))
     test_set = test_set.reshape((test_num, dim))
     print("train shape: %s, test shape: %s" % (train_set.shape, test_set.shape))
+    # nn = BasicNN((train_set.shape[1] - 1, 10, 1), train_set, test_set)
+    nn = BasicNN((train_set.shape[1] - 1, 10, 1), np_instances, test_set)
 
-    nn = BasicNN((dim-1, 4, 1), train_set, test_set)
+    # print("test set loss:", nn.loss(test_set))
+    nn.train(10000)
+    print("test set loss:", nn.loss(test_set, True))
 
+if __name__ == '__main__':
+    main()
 

@@ -23,9 +23,9 @@ class Layer(object):
 
     def do_backward(self, sensitive):
         if self.activation is None:
-            self.backward(sensitive)
+            return self.backward(sensitive)
         else:
-            self.backward(self.activation(sensitive))
+            return self.backward(self.activation(sensitive))
 
     def forward(self, input):
         pass

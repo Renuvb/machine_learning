@@ -23,10 +23,15 @@ class Dense(Layer):
         return output
 
     def backward(self, sensitive):
+        # sensitive: n * out_channel
         x_sensitive = np.matmul(sensitive, self.w.T)
 
-        delta_w = np.matmul(self.current_input.T, sensitive)
-        self.w += delta_w * self.eta * (-1)
+        delta_w = np.matmul(self.current_input.T, sensitive) * self.eta * -1 / self.current_input.shape[0]
+        # print("curent_input", self.current_input)
+        # print("delta_w", delta_w)
+        # print("w before", self.w)
+        self.w = self.w + delta_w
+        # print("w after", self.w)
 
         return x_sensitive
 

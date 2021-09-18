@@ -10,10 +10,10 @@ class MSELoss(object):
 
 
 class Model(object):
-    def __init__(self):
+    def __init__(self, batch_size=32):
         self.layers = []
         self.loss_func = MSELoss()
-        self.batch_size = 32
+        self.batch_size = batch_size
 
     def fit(self, x, y, epoch=1):
         print("x shape:", x.shape)
@@ -24,10 +24,13 @@ class Model(object):
                 # forward
                 for layer in self.layers:
                     current_x = layer.do_forward(current_x)
+                # print("output", current_x)
                 loss = self.loss_func.loss(current_x, current_y)
                 sensitive = self.loss_func.sensitive(current_x, current_y)
+                # print("loss_sensitive: ", sensitive)
                 for layer in self.layers[::-1]:
                     sensitive = layer.do_backward(sensitive)
+                #     print("sensitive: ", sensitive)
                 print("%s, loss: %s" % (s, loss))
 
     def predict(self, input):

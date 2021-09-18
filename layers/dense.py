@@ -3,7 +3,7 @@ import numpy as np
 
 class Dense(Layer):
     def __init__(self, input_channel, with_bias=True, output_channel=1, activation=None):
-        super(self, input_shape=(None, input_channel), activation=activation)
+        super().__init__(input_shape=(None, input_channel), activation=activation)
         self.input_channel = input_channel
         self.output_channel = output_channel
         self.output_shape = (None, output_channel)
@@ -26,8 +26,8 @@ class Dense(Layer):
         x_sensitive = np.matmul(sensitive, self.w.T)
 
         delta_w = np.matmul(self.current_input.T, sensitive)
-        self.w += delta_w * self.eta
+        self.w += delta_w * self.eta * (-1)
 
         return x_sensitive
 
-        
+

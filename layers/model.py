@@ -31,7 +31,7 @@ class Model(object):
                 for layer in self.layers[::-1]:
                     sensitive = layer.do_backward(sensitive)
                 #     print("sensitive: ", sensitive)
-                print("%s, loss: %s" % (s, loss))
+            print("epoch: %s, loss: %s" % (e_i, loss))
 
     def predict(self, input):
         output = input

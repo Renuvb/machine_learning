@@ -10,7 +10,7 @@ class Dense(Layer):
         self.w = np.random.rand(input_channel, output_channel) - 0.5
         self.with_bias = with_bias
         if self.with_bias:
-            self.bias = np.random.rand(output_channel) # o_c
+            self.bias = np.random.rand(1, output_channel) # o_c
 
     def forward(self, input): # batch * input_channel
         """
@@ -19,7 +19,7 @@ class Dense(Layer):
         """
         output = np.matmul(input, self.w)
         if self.with_bias:
-            output += np.matmul(np.ones((input.shape[0], 1)), self.bias.reshape((1, self.output_channel)))
+            output += np.matmul(np.ones((input.shape[0], 1)), self.bias)
         return output
 
     def backward(self, sensitive):
@@ -32,6 +32,9 @@ class Dense(Layer):
         # print("w before", self.w)
         self.w = self.w + delta_w
         # print("w after", self.w)
+
+        if self.with_bias:
+            self.bias += np.matmul(np.ones((1, sensitive.shape[0])), sensitive) * self.eta * -1 / self.current_input.shape[0]
 
         return x_sensitive
 

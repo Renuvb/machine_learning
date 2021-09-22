@@ -30,7 +30,7 @@ class Layer(object):
     def forward(self, input):
         pass
 
-    def backward(self, sensitie):
+    def backward(self, sensitive):
         pass
 
     def input_shape(self):

@@ -1,18 +1,12 @@
 import numpy as np
-
-
-class MSELoss(object):
-    def loss(self, x, y):
-        return np.sum((x-y)**2) / 2.0
-
-    def sensitive(self, x, y):
-        return x - y
+from machine_learning import losses
 
 
 class Model(object):
-    def __init__(self, batch_size=32):
+    def __init__(self, batch_size=32, loss=losses.MSELoss):
         self.layers = []
-        self.loss_func = MSELoss()
+        self.loss_func = loss()
+        print(self.loss_func)
         self.batch_size = batch_size
 
     def fit(self, x, y, epoch=1):
@@ -31,9 +25,9 @@ class Model(object):
                 for layer in self.layers[::-1]:
                     sensitive = layer.do_backward(sensitive)
                 #     print("sensitive: ", sensitive)
-                print("epoch: %s, step: %s, loss: %s" % (e_i, s, loss))
+                # print("epoch: %s, step: %s, losses: %s" % (e_i, s, loss))
 
-            print("epoch: %s, loss: %s" % (e_i, loss))
+            print("epoch: %s, losses: %s" % (e_i, loss))
 
     def predict(self, input):
         output = input

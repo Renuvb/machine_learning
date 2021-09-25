@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 # y = sum(w * e ^ (beta * (x-c)^2))
-# loss = 0.5 * (y-real_y)^2
+# losses = 0.5 * (y-real_y)^2
 # ay / aw = (y-real_y) * e ^ (beta * (x-c)^2)
 # ay / abeta = (y - real_y) * w * e ^ (beta * (x-c)^2) * (x-c)^2
 
@@ -57,11 +57,11 @@ class RBF:
         return loss
 
     def run(self, max_round=1000, detail_mode=False):
-        # print("round %s, loss %s" % (i, loss))
+        # print("round %s, losses %s" % (i, losses))
         for i in range(max_round):
             loss = self.round(self.x, self.y, detail_mode)
-            print("round %s loss %s, beta %s, w %s" % (i, loss, self.beta, self.w))
-            # print("round %s loss %s, beta %s, w %s" % (i, loss, self.beta, self.w))
+            print("round %s losses %s, beta %s, w %s" % (i, loss, self.beta, self.w))
+            # print("round %s losses %s, beta %s, w %s" % (i, losses, self.beta, self.w))
 
 
 

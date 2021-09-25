@@ -8,7 +8,10 @@ class Layer(object):
         self.w = None
         self.current_loss = None
         self.eta = 0.1
-        self.activation = activation
+        if activation != None:
+            self.activation = activation()
+        else:
+            self.activation = None
 
     def build(self):
         pass
@@ -19,13 +22,13 @@ class Layer(object):
         if self.activation is None:
             return self.current_output
         else:
-            self.activation(self.current_output)
+            return self.activation.forward(self.current_output)
 
     def do_backward(self, sensitive):
         if self.activation is None:
             return self.backward(sensitive)
         else:
-            return self.backward(self.activation(sensitive))
+            return self.backward(self.activation.backward(sensitive))
 
     def forward(self, input):
         pass

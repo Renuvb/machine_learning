@@ -66,14 +66,14 @@ class BasicNN:
 
         for i in range(max_round):
             round(self.training_set)
-            print("round:%s, eta: %s, loss: %s" % (i, self.eta, self.loss(self.training_set)))
+            print("round:%s, eta: %s, losses: %s" % (i, self.eta, self.loss(self.training_set)))
 
         for i in range(max_round):
             for j in range(self.training_set.shape[0]):
                 round(self.training_set[j:j+1,:])
-            print("round:%s, eta: %s, loss: %s" % (i, self.eta, self.loss(self.training_set)))
+            print("round:%s, eta: %s, losses: %s" % (i, self.eta, self.loss(self.training_set)))
 
-        # if last_loss < loss:
+        # if last_loss < losses:
         #     self.eta *= 0.5
         #     print("round %s, change eta" % i)
 
@@ -185,9 +185,9 @@ def main():
     # nn = BasicNN((train_set.shape[1] - 1, 10, 1), train_set, test_set)
     nn = BasicNN((train_set.shape[1] - 1, 10, 1), np_instances, test_set)
 
-    # print("test set loss:", nn.loss(test_set))
+    # print("test set losses:", nn.losses(test_set))
     nn.train(10000)
-    print("test set loss:", nn.loss(test_set, True))
+    print("test set losses:", nn.loss(test_set, True))
 
 if __name__ == '__main__':
     main()

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 # from layer import Layer
-from layer import Layer
+from machine_learning.layers.layer import Layer
 import numpy as np
 import os
 
@@ -19,6 +19,7 @@ def conv2d(input, filter, stride=1):
     """
     # print(input.shape, filter.shape)
     output_shape = calc_conv_shape(input.shape[1:3], filter.shape[1:3], stride=stride)
+    # print(input.shape, output_shape)
     filter_number = filter.shape[0]
     output = np.zeros((input.shape[0], output_shape[0], output_shape[1], filter_number))
     # print(output_shape)
@@ -44,6 +45,21 @@ def padding(input, padding):
     return output
 
 
+def fill_zeros(m, input_shape, filter_shape, stride):
+    if stride == 1:
+        return m
+    after_fill_shape = [m.shape[1+i]+input_shape[i]-filter_shape[i] - (input_shape[i]-filter_shape[i])//stride for i in (0,1)]
+    # print(input_shape, filter_shape, after_fill_shape)
+    output = np.zeros((m.shape[0], after_fill_shape[0], after_fill_shape[1], m.shape[3]))
+    for k in range(input_shape[0]):
+        for i in range(m.shape[1]):
+            for j in range(m.shape[2]):
+                out_i = i * stride
+                out_j = j * stride
+                output[k][out_i][out_j] = m[k][i][j]
+    return output
+
+
 def rotate(input):
     """
     :param input: batch * height * width * channel
@@ -58,8 +74,8 @@ def rotate(input):
 
 
 class Conv2d(Layer):
-    def __init__(self, input_shape, filter_size, filter_number, padding=0, stride=1, with_bias=False):
-        super().__init__(input_shape=input_shape)  # batch * height * width * channel
+    def __init__(self, input_shape, filter_size, filter_number, padding=0, stride=1, with_bias=False, activation=None):
+        super().__init__(input_shape=input_shape, activation=activation)  # batch * height * width * channel
         self.filter_size = filter_size
         self.filter_number = filter_number
         self.padding = padding
@@ -70,6 +86,9 @@ class Conv2d(Layer):
         self.w = np.random.rand(filter_number, filter_size, filter_size, input_shape[3])
         if with_bias:
             self.bias = np.random.rand(filter_number)
+
+    def after_padding_input_shape(self):
+        return [None, self.input_shape[1]+self.padding*2, self.input_shape[2]+self.padding*2, self.input_shape[3]]
 
     def forward(self, input):
         """
@@ -101,12 +120,19 @@ class Conv2d(Layer):
         backward:
         input_sensitive = batch * padding_output_h * padding_output_w * filter_num   conv   input_channel * w_h * w_w * filter_num -> batch * input_h * input_w * input_channel
         """
+        # print("sensitive", sensitive.shape)
+        if self.stride > 1:
+            sensitive = fill_zeros(sensitive, self.after_padding_input_shape()[1:3], self.filter_shape[1:3], self.stride)
+        # print("sensitive after fill zeros", sensitive.shape)
+
         padding_out = padding(sensitive, self.filter_size-1)
+
         rotated_w = rotate(self.w)
         sensitive_x = conv2d(padding_out, rotated_w)
         if self.padding > 0:
             sensitive_x = sensitive_x[:,self.padding:-self.padding, self.padding:-self.padding,:]
         # print("padding_out %s, rotated_w %s, sensitive shape: %s, output_sensitive shape: %s" % (padding_out.shape, rotated_w.shape, sensitive.shape, sensitive_x.shape))
+        # print("sensitive_x", sensitive_x.shape)
 
         swapped_input = np.swapaxes(padding(self.current_input, self.padding), 0, 3)
         swapped_sensitive = np.swapaxes(sensitive, 0, 3)

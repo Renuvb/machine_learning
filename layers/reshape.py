@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from layer import Layer
+from machine_learning.layers.layer import Layer
 
 
 class Reshape(Layer):

@@ -22,8 +22,12 @@ class SigmoidActivator(Activator):
 
 
 class Relu(Activator):
+    def __init__(self):
+        self.current_valid_flag = None
+
     def forward(self, input):
-        pass
+        self.current_valid_flag = (input > 0)
+        return input * self.current_valid_flag
 
     def backward(self, sensitve):
-        pass
+        return sensitve * self.current_valid_flag

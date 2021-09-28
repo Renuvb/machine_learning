@@ -21,7 +21,7 @@ def cnn_test():
     model = build_model()
     model.dump_info()
     # model.debug(x_train[:1], y_train_mod[:1])
-    model.fit(x_train, y_train_mod, epoch=1)
+    model.fit(x_train[:200], y_train_mod[:200], epoch=1)
 
 
 def build_model():

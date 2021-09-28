@@ -18,7 +18,7 @@ class MSELoss(Loss):
         return x - y
 
 
-class CrossEntropy(Loss):
+class CrossEntropyLoss(Loss):
     def loss(self, x, y):
         """
         loss = sum(yi * log(xi))
@@ -26,6 +26,8 @@ class CrossEntropy(Loss):
         :param y: real label 0 or 1 [None, k]
         :return:
         """
+        # print(x.shape)
+        # print(x)
         return np.sum(y * np.log(x)) * -1.0 / x.shape[0]
 
     def sensitive(self, x, y):

@@ -14,6 +14,8 @@ class SigmoidActivator(Activator):
         self.current_y = None
 
     def forward(self, input):
+        input = np.amax([input, np.full(input.shape, -14)], axis=0)
+        input = np.amin([input, np.full(input.shape, 14)], axis=0)
         self.current_y = 1.0 / (1.0 + np.exp(input * -1))
         return self.current_y
 

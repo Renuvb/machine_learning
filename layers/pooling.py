@@ -4,8 +4,8 @@ from machine_learning.layers.layer import Layer
 
 
 class Pooling2D(Layer):
-    def __init__(self, input_shape, pooling_shape):
-        super().__init__(input_shape)
+    def __init__(self, input_shape, pooling_shape, name=None):
+        super().__init__(input_shape, name=name)
         self.pooling_shape = pooling_shape
         self.output_shape = list(self.input_shape)
         self.output_shape[1] = self.output_shape[1] // pooling_shape[0]
@@ -22,8 +22,8 @@ class Pooling2D(Layer):
 
 
 class MaxPooling2D(Pooling2D):
-    def __init__(self, input_shape, pooling_shape):
-        super().__init__(input_shape, pooling_shape)
+    def __init__(self, input_shape, pooling_shape, name=None):
+        super().__init__(input_shape, pooling_shape, name=name)
 
     def forward(self, input):
         self.weight_map = np.zeros(input.shape)
@@ -45,8 +45,8 @@ class MaxPooling2D(Pooling2D):
 
 
 class AvgPooling2D(Pooling2D):
-    def __init__(self, input_shape, pooling_shape):
-        super().__init__(input_shape, pooling_shape)
+    def __init__(self, input_shape, pooling_shape, name=None):
+        super().__init__(input_shape, pooling_shape, name=name)
 
     def forward(self, input):
         p_h, p_w = self.pooling_shape

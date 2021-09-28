@@ -1,1 +1,1 @@
-from machine_learning.losses.loss import MSELoss
+from machine_learning.losses.loss import MSELoss, CrossEntropyLoss

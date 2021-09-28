@@ -4,8 +4,8 @@ from machine_learning.layers.layer import Layer
 
 
 class Reshape(Layer):
-    def __init__(self, input_shape, output_shape):
-        super().__init__(input_shape)
+    def __init__(self, input_shape, output_shape, name=None):
+        super().__init__(input_shape, name=name)
         self.output_shape = output_shape
 
     def forward(self, input):

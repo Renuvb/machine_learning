@@ -74,8 +74,8 @@ def rotate(input):
 
 
 class Conv2d(Layer):
-    def __init__(self, input_shape, filter_size, filter_number, padding=0, stride=1, with_bias=False, activation=None):
-        super().__init__(input_shape=input_shape, activation=activation)  # batch * height * width * channel
+    def __init__(self, input_shape, filter_size, filter_number, padding=0, stride=1, with_bias=False, activation=None, name=None):
+        super().__init__(input_shape=input_shape, activation=activation, name=name)  # batch * height * width * channel
         self.filter_size = filter_size
         self.filter_number = filter_number
         self.padding = padding

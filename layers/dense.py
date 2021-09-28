@@ -2,15 +2,15 @@ from machine_learning.layers.layer import Layer
 import numpy as np
 
 class Dense(Layer):
-    def __init__(self, input_channel, with_bias=True, output_channel=1, activation=None):
-        super().__init__(input_shape=(None, input_channel), activation=activation)
+    def __init__(self, input_channel, with_bias=True, output_channel=1, activation=None, name=None):
+        super().__init__(input_shape=(None, input_channel), activation=activation, name=name)
         self.input_channel = input_channel
         self.output_channel = output_channel
         self.output_shape = (None, output_channel)
         self.w = np.random.rand(input_channel, output_channel) - 0.5
         self.with_bias = with_bias
         if self.with_bias:
-            self.bias = np.random.rand(1, output_channel) # o_c
+            self.bias = np.random.rand(1, output_channel) - 0.5 # o_c
 
     def forward(self, input): # batch * input_channel
         """
@@ -18,8 +18,10 @@ class Dense(Layer):
         :return: batch * output_channel
         """
         output = np.matmul(input, self.w)
+        # print(self.w)
         if self.with_bias:
             output += np.matmul(np.ones((input.shape[0], 1)), self.bias)
+        # print(output.reshape((output.size,)[:10]))
         return output
 
     def backward(self, sensitive):
@@ -34,7 +36,7 @@ class Dense(Layer):
         # print("w after", self.w)
 
         if self.with_bias:
-            self.bias += np.matmul(np.ones((1, sensitive.shape[0])), sensitive) * self.eta * -1 / self.current_input.shape[0]
+            self.bias += np.matmul(np.ones((1, sensitive.shape[0])), sensitive) * self.eta * -1.0 / self.current_input.shape[0]
 
         return x_sensitive
 

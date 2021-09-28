@@ -1,6 +1,6 @@
 
 class Layer(object):
-    def __init__(self, input_shape=(None, 1), activation=None):
+    def __init__(self, input_shape=(None, 1), activation=None, name=None):
         self.input_shape = input_shape
         self.output_shape = (None, 0)
         self.current_input = None
@@ -12,6 +12,7 @@ class Layer(object):
             self.activation = activation()
         else:
             self.activation = None
+        self.name = name
 
     def build(self):
         pass
@@ -36,10 +37,10 @@ class Layer(object):
     def backward(self, sensitive):
         pass
 
-    def input_shape(self):
+    def in_shape(self):
         return self.input_shape
 
-    def output_shape(self):
+    def out_shape(self):
         return self.output_shape
 
     def loss(self):
